@@ -4,8 +4,12 @@ import com.study.board.entity.Board;
 import com.study.board.repository.BoardRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class BoardService {
@@ -14,7 +18,21 @@ public class BoardService {
     private BoardRepository boardRepository;
 
     // 글 작성 처리
-    public void write(Board board) {
+    // html에서 name 속성으로 정한 이름과 매개변수의 변수명이 일치해야함.
+    public void write(Board board, MultipartFile file) throws Exception {
+        // 프로젝트 경로 반환
+        // 파일 로딩은 서버 재기동 필요
+        // 재기동 없이 파일로 로딩 하는 방법: https://ssdragon.tistory.com/m/82
+        String projectPath = System.getProperty("user.dir") + "\\src\\main\\resources\\static\\files";
+        UUID uuid = UUID.randomUUID();
+        String fileName = uuid + "_" + file.getOriginalFilename();
+        File saveFile = new File(projectPath, fileName);
+
+        file.transferTo(saveFile);
+
+        board.setFilename(fileName);
+        board.setFilepath("/files/" + fileName);
+
         boardRepository.save(board);
     }
 
