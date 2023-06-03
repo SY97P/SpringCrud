@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 
 @Controller
@@ -36,6 +37,30 @@ public class BoardController {
     public String boardView(Model model, Integer id) {
         model.addAttribute("board", boardService.boardView(id));
         return "boardview";
+    }
+
+    @GetMapping("/board/modify/{id}") // localhost:8090/board/modify/id값
+    public String boardModify(@PathVariable("id") Integer id, Model model) {
+        // @PathVariable Annotation
+        // uri의 id 값을 매개변수로 불러온다는 의미.
+        // 이걸 쓰면 /board/modify/id 형태로 url이 생성됨.
+        // 기존의 /board/modify?id=id값 형태가 아님.
+
+        // 위의 boardView() 메소드와 같은 이유는 필요한 정보가 똑같기 때문임.
+        model.addAttribute("board", boardService.boardView(id));
+
+        return "boardmodify";
+    }
+
+    @PostMapping("/board/update/{id}")
+    public String boardUpdate(@PathVariable("id") Integer id, Board board) {
+        Board boardTemp = boardService.boardView(id);
+        boardTemp.setTitle(board.getTitle());
+        boardTemp.setContent(board.getContent());
+
+        boardService.write(boardTemp);
+
+        return "redirect:/board/list";
     }
 
     @GetMapping("/board/delete")
